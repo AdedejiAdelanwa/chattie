@@ -39,7 +39,7 @@ function ChatApp() {
     <div className="flex mt-24 justify-center w-full">
       {!joined ? (
         <div className="flex w-full max-w-3xl mx-auto flex-col items-center">
-          <h1 className="mb-4 text-2xl font-bold">Chattie </h1>
+          <h1 className="mb-4 text-2xl font-bold">Chattie App </h1>
           <h2 className="mb-4 text-xl font-bold">Join A Room</h2>
           <input
             type="text"
