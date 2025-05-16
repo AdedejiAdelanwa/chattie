@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import ChatForm from "./components/ChatForm";
 import ChatMessage from "./components/ChatMessage";
 import { socket } from "./lib/socketClient";
@@ -11,11 +11,7 @@ function ChatApp() {
   const [messages, setMessages] = useState<
     { sender: string; message: string }[]
   >([]);
-  const handleSendMessage = (message: string) => {
-    const data = { room, message, sender: username };
-    setMessages((prev) => [...prev, { sender: username, message }]);
-    socket.emit("message", data);
-  };
+  const [typing, setTyping] = useState<string>("");
 
   const handleJoinRoom = () => {
     if (room && username) {
@@ -23,6 +19,32 @@ function ChatApp() {
       setJoined(true);
     }
   };
+  const handleTyping = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    socket.emit("userTyping", { sender: username, room });
+
+    setTimeout(() => {
+      socket.emit("userStoppedTyping", { room });
+    }, 6000);
+  };
+  const handleSendMessage = (message: string) => {
+    const data = { room, message, sender: username };
+    setMessages((prev) => [...prev, { sender: username, message }]);
+    socket.emit("message", data);
+  };
+
+  useEffect(() => {
+    socket.on("typing", (message) => {
+      setTyping(message);
+    });
+    socket.on("userStoppedTyping", () => {
+      setTyping("");
+    });
+    return () => {
+      socket.off("typing");
+      socket.off("userStoppedTyping");
+    };
+  }, [setTyping]);
   useEffect(() => {
     socket.on("joinRoom", (message) => {
       setMessages((prev) => [...prev, { sender: "system", message }]);
@@ -66,6 +88,8 @@ function ChatApp() {
         <div className="w-full max-w-3xl mx-auto">
           <h1>Room: {room}</h1>
           <div className="h-[500px] overflow-y-auto border bg-gray-200 border-gray-300 rounded p-4">
+            {typing && <p>{typing}</p>}
+
             {messages.map((message, i) => (
               <ChatMessage
                 key={i}
@@ -75,7 +99,7 @@ function ChatApp() {
               />
             ))}
           </div>
-          <ChatForm onSendMessage={handleSendMessage} />
+          <ChatForm onTyping={handleTyping} onSendMessage={handleSendMessage} />
         </div>
       )}
     </div>

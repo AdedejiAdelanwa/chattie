@@ -22,6 +22,14 @@ app.prepare().then(() => {
       socket.to(room).emit("joinRoom", `${username} joined room`);
     });
 
+    socket.on("userTyping", ({ sender, room }) => {
+      socket.to(room).emit("typing", `${sender} is typing...`);
+    });
+
+    socket.on("userStoppedTyping", ({ room }) => {
+      socket.to(room).emit("userStoppedTyping");
+    });
+
     socket.on("message", ({ room, message, sender }) => {
       socket.to(room).emit("message", { sender, message });
     });

@@ -1,12 +1,16 @@
 "use client";
 import React from "react";
 
-function ChatForm({
-  onSendMessage,
-}: {
+interface ChartFormProps {
   onSendMessage: (message: string) => void;
-}) {
+  onTyping: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+}
+
+function ChatForm({ onSendMessage, onTyping }: ChartFormProps) {
   const [message, setMessage] = React.useState<string>("");
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMessage(e.target.value);
+  };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim() !== "") {
@@ -19,7 +23,8 @@ function ChatForm({
       <input
         type="text"
         value={message}
-        onChange={(e) => setMessage(e.target.value)}
+        onChange={handleChange}
+        onKeyUp={onTyping}
         placeholder="Type your message here..."
         className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none"
       />
