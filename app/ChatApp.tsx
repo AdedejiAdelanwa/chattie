@@ -88,8 +88,6 @@ function ChatApp() {
         <div className="w-full max-w-3xl mx-auto">
           <h1>Room: {room}</h1>
           <div className="h-[500px] overflow-y-auto border bg-gray-200 border-gray-300 rounded p-4">
-            {typing && <p>{typing}</p>}
-
             {messages.map((message, i) => (
               <ChatMessage
                 key={i}
@@ -98,6 +96,7 @@ function ChatApp() {
                 isOwnMessage={message.sender === username}
               />
             ))}
+            {typing && <p className="text-[10px] text-gray-900">{typing}</p>}
           </div>
           <ChatForm onTyping={handleTyping} onSendMessage={handleSendMessage} />
         </div>
