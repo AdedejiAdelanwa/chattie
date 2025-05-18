@@ -3,12 +3,12 @@ import React from "react";
 
 interface ChartFormProps {
   onSendMessage: (message: string) => void;
-  onTyping: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onTyping: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }
 
 function ChatForm({ onSendMessage, onTyping }: ChartFormProps) {
   const [message, setMessage] = React.useState<string>("");
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
   };
   const handleSubmit = (e: React.FormEvent) => {
@@ -19,18 +19,19 @@ function ChatForm({ onSendMessage, onTyping }: ChartFormProps) {
     }
   };
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 mt-4">
-      <input
-        type="text"
+    <form className="flex justify-between gap-2 mt-4">
+      <textarea
+        name="message"
         value={message}
         onChange={handleChange}
         onKeyUp={onTyping}
+        className="w-[85%] border border-gray-300 rounded px-4 py-1 focus:outline-none"
         placeholder="Type your message here..."
-        className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none"
       />
       <button
         type="submit"
-        className="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600"
+        className="w-[15%] bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600 cursor-pointer"
+        onClick={handleSubmit}
       >
         Send
       </button>
