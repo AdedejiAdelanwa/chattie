@@ -25,12 +25,12 @@ function ChatForm({ onSendMessage, onTyping }: ChartFormProps) {
         value={message}
         onChange={handleChange}
         onKeyUp={onTyping}
-        className="w-[90%] border border-gray-300 rounded px-1 focus:outline-none"
+        className="w-[85%] border border-gray-300 rounded px-1 focus:outline-none"
         placeholder="Type your message here..."
       />
       <button
         type="submit"
-        className=" flex items-center justify-center w-[7%] bg-blue-500 text-white rounded  hover:bg-blue-600 cursor-pointer"
+        className=" flex items-center justify-center w-[12%] bg-blue-500 text-white rounded  hover:bg-blue-600 cursor-pointer"
         onClick={handleSubmit}
       >
         <svg
