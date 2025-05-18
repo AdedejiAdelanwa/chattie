@@ -19,7 +19,7 @@ function ChatApp() {
       setJoined(true);
     }
   };
-  const handleTyping = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleTyping = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     e.preventDefault();
     socket.emit("userTyping", { sender: username, room });
 
