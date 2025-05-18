@@ -19,6 +19,11 @@ function ChatApp() {
       setJoined(true);
     }
   };
+
+  const handleExitRoom = () => {
+    socket.emit("leaveRoom", { room, username });
+    setJoined(false);
+  };
   const handleTyping = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     e.preventDefault();
     socket.emit("userTyping", { sender: username, room });
@@ -52,11 +57,15 @@ function ChatApp() {
     socket.on("message", (data) => {
       setMessages((prev) => [...prev, data]);
     });
+    socket.on("leaveRoom", (message) => {
+      setMessages((prev) => [...prev, { sender: "system", message }]);
+    });
     return () => {
       socket.off("joinRoom");
       socket.off("message");
     };
   }, []);
+
   return (
     <div className="flex mt-24 justify-center w-full">
       {!joined ? (
@@ -85,8 +94,17 @@ function ChatApp() {
           </button>
         </div>
       ) : (
-        <div className="w-full max-w-3xl mx-auto">
-          <h1>Room: {room}</h1>
+        <div className="w-full max-w-3xl">
+          <div className="flex justify-between items-center mb-4">
+            <h1>Room: {room}</h1>
+            <button
+              onClick={handleExitRoom}
+              className="bg-gray-100 hover:bg-gray-300 text-red-600 rounded px-2 py-1 cursor-pointer border border-red-600"
+            >
+              Exit Room
+            </button>
+          </div>
+
           <div className="h-[500px] overflow-y-auto border bg-gray-200 border-gray-300 rounded p-4">
             {messages.map((message, i) => (
               <ChatMessage

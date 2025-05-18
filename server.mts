@@ -17,6 +17,7 @@ app.prepare().then(() => {
 
     socket.on("joinRoom", ({ room, username }) => {
       socket.join(room);
+      //   socket.leave()
       console.log(`User ${username} joined room ${room}`);
 
       socket.to(room).emit("joinRoom", `${username} joined room`);
@@ -32,6 +33,11 @@ app.prepare().then(() => {
 
     socket.on("message", ({ room, message, sender }) => {
       socket.to(room).emit("message", { sender, message });
+    });
+
+    socket.on("leaveRoom", ({ room, username }) => {
+      socket.leave(room);
+      socket.to(room).emit("leaveRoom", `${username} left the room`);
     });
 
     socket.on("disconnect", () => {
