@@ -182,7 +182,7 @@ function ChatApp() {
             {showScrollButton && (
               <button
                 type="button"
-                className="absolute bottom-4 right-0 px-2 py-1 rounded-tl-lg rounded-bl-lg bg-gray-200  cursor-pointer z-10"
+                className="absolute bottom-4 right-0 px-2 py-1 rounded-tl-lg rounded-bl-lg bg-gray-200 border-t-1 border-b-1 border-l-1 border-gray-300  cursor-pointer z-10"
                 onClick={scrollToBottom}
               >
                 <svg
