@@ -15,6 +15,8 @@ function ChatApp() {
   const contentRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState<boolean>(false);
+  const isAutoScrolling = useRef<boolean>(false);
+  const userHasScrolledUp = useRef<boolean>(false);
 
   const handleJoinRoom = () => {
     if (room && username) {
@@ -77,55 +79,62 @@ function ChatApp() {
     if (!container) return;
 
     const checkScrollPosition = () => {
+      if (isAutoScrolling.current) {
+        isAutoScrolling.current = false;
+        return;
+      }
       const { scrollTop, scrollHeight, clientHeight } = container;
-      const isNearBottom = scrollHeight - (scrollTop + clientHeight) < 50;
-      setShowScrollButton(!isNearBottom);
+      const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+      const isNearBottom = distanceFromBottom < 50;
+      userHasScrolledUp.current = !isNearBottom;
+      setShowScrollButton(userHasScrolledUp.current);
     };
-    checkScrollPosition();
+    const scrollToBottom = () => {
+      if (!bottomRef.current) return;
+      isAutoScrolling.current = true;
+      bottomRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    };
 
-    const observer = new MutationObserver(checkScrollPosition);
+    const handleNewMessages = () => {
+      // Only auto-scroll if user hasn't manually scrolled up
+      if (!userHasScrolledUp.current) {
+        scrollToBottom();
+      }
+      checkScrollPosition();
+    };
+
+    const observer = new MutationObserver(handleNewMessages);
 
     observer.observe(container, {
       childList: true,
       subtree: true,
+      characterData: true,
     });
 
     container.addEventListener("scroll", checkScrollPosition);
     window.addEventListener("resize", checkScrollPosition);
+
+    checkScrollPosition();
+    scrollToBottom();
 
     return () => {
       observer.disconnect();
       container.removeEventListener("scroll", checkScrollPosition);
       window.removeEventListener("resize", checkScrollPosition);
     };
-
-    // const handleScrollHeightChange = () => {
-    //   const isAtBottom =
-    //     container.scrollHeight - container.scrollTop === container.clientHeight;
-    //   if (isAtBottom) {
-    //     setScrollHeight(0);
-    //     console.log("At the botom");
-    //   } else {
-    //     setScrollHeight(container.scrollHeight);
-    //     //console.log(scrollHeight, container.scrollHeight);
-    //     console.log(clientHeight);
-    //   }
-    // };
-
-    // const observer = new MutationObserver(handleScrollHeightChange);
-
-    // observer.observe(container, {
-    //   childList: true,
-    //   subtree: true,
-    //   characterData: true,
-    // });
-
-    // handleScrollHeightChange();
-    // return () => observer.disconnect();
   }, [messages]);
-  const scrollToBottom = () => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+
+  const handleManualScrollToBottom = () => {
+    userHasScrolledUp.current = false;
+    setShowScrollButton(false);
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }
   };
+
   return (
     <div className="flex mt-24 justify-center w-full">
       {!joined ? (
@@ -183,7 +192,7 @@ function ChatApp() {
               <button
                 type="button"
                 className="absolute bottom-4 right-0 px-2 py-1 rounded-tl-lg rounded-bl-lg bg-gray-200 border-t-1 border-b-1 border-l-1 border-gray-300  cursor-pointer z-10"
-                onClick={scrollToBottom}
+                onClick={handleManualScrollToBottom}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
