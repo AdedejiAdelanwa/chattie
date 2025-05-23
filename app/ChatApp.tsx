@@ -95,7 +95,7 @@ function ChatApp() {
       bottomRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
     };
 
-    const handleNewMessages = () => {
+    const handleNewMessage = () => {
       // Only auto-scroll if user hasn't manually scrolled up
       if (!userHasScrolledUp.current) {
         scrollToBottom();
@@ -103,7 +103,7 @@ function ChatApp() {
       checkScrollPosition();
     };
 
-    const observer = new MutationObserver(handleNewMessages);
+    const observer = new MutationObserver(handleNewMessage);
 
     observer.observe(container, {
       childList: true,

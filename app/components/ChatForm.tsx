@@ -8,14 +8,16 @@ interface ChartFormProps {
 
 function ChatForm({ onSendMessage, onTyping }: ChartFormProps) {
   const [message, setMessage] = React.useState<string>("");
+  const inputRef = React.useRef<HTMLTextAreaElement>(null);
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
   };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (message.trim() !== "") {
+    if (message.trim() !== "" && inputRef.current) {
       onSendMessage(message);
       setMessage("");
+      inputRef.current.focus();
     }
   };
   return (
@@ -25,6 +27,7 @@ function ChatForm({ onSendMessage, onTyping }: ChartFormProps) {
         value={message}
         onChange={handleChange}
         onKeyUp={onTyping}
+        ref={inputRef}
         className="w-[85%] border border-gray-300 rounded px-1 focus:outline-none"
         placeholder="Type your message here..."
       />
