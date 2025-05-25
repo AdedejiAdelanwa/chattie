@@ -9,7 +9,7 @@ function ChatApp() {
   const [joined, setJoined] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
   const [messages, setMessages] = useState<
-    { sender: string; message: string }[]
+    { sender: string; message: string; timeStamp?: string }[]
   >([]);
   const [typing, setTyping] = useState<string>("");
   const contentRef = useRef<HTMLDivElement>(null);
@@ -41,8 +41,26 @@ function ChatApp() {
     }, 6000);
   };
   const handleSendMessage = (message: string) => {
-    const data = { room, message, sender: username };
-    setMessages((prev) => [...prev, { sender: username, message }]);
+    const data = {
+      room,
+      message,
+      sender: username,
+      timeStamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+    setMessages((prev) => [
+      ...prev,
+      {
+        sender: username,
+        message,
+        timeStamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      },
+    ]);
     socket.emit("message", data);
   };
 
@@ -183,6 +201,7 @@ function ChatApp() {
                 key={i}
                 message={message.message}
                 sender={message.sender}
+                timeStamp={message?.timeStamp}
                 isOwnMessage={message.sender === username}
               />
             ))}
