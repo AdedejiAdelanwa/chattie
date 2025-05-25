@@ -20,7 +20,7 @@ function ChatMessage({ sender, message, isOwnMessage }: ChatMessageProps) {
       } mb-3`}
     >
       <div
-        className={`max-w-xs px-4 py-2 rounded-lg ${
+        className={`flex flex-col max-w-xs px-4 py-2 rounded-lg ${
           isSystemMessage
             ? "bg-gray-800 text-white text-xs"
             : isOwnMessage
@@ -30,6 +30,14 @@ function ChatMessage({ sender, message, isOwnMessage }: ChatMessageProps) {
       >
         {!isSystemMessage && <p className="text-sm font-bold">{sender}</p>}
         <p className="">{message}</p>
+        {!isSystemMessage && (
+          <small className="self-end text-gray-300 text-xs">
+            {new Date().toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </small>
+        )}
       </div>
     </div>
   );
