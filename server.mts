@@ -13,13 +13,8 @@ app.prepare().then(() => {
   const httpServer = createServer(handle);
   const io = new Server(httpServer);
   io.on("connection", (socket) => {
-    console.log(`User connected: ${socket.id}`);
-
     socket.on("joinRoom", ({ room, username }) => {
       socket.join(room);
-      //   socket.leave()
-      console.log(`User ${username} joined room ${room}`);
-
       socket.to(room).emit("joinRoom", `${username} joined room`);
     });
 
@@ -31,8 +26,8 @@ app.prepare().then(() => {
       socket.to(room).emit("userStoppedTyping");
     });
 
-    socket.on("message", ({ room, message, sender }) => {
-      socket.to(room).emit("message", { sender, message });
+    socket.on("message", ({ room, message, sender, timeStamp }) => {
+      socket.to(room).emit("message", { sender, message, timeStamp });
     });
 
     socket.on("leaveRoom", ({ room, username }) => {

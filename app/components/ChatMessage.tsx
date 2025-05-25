@@ -3,11 +3,17 @@ import React from "react";
 interface ChatMessageProps {
   message: string;
   sender: string;
+  timeStamp?: string;
   isOwnMessage: boolean;
   //   isSystemMessage: boolean;
 }
 
-function ChatMessage({ sender, message, isOwnMessage }: ChatMessageProps) {
+function ChatMessage({
+  sender,
+  message,
+  isOwnMessage,
+  timeStamp,
+}: ChatMessageProps) {
   const isSystemMessage = sender === "system";
   return (
     <div
@@ -31,12 +37,7 @@ function ChatMessage({ sender, message, isOwnMessage }: ChatMessageProps) {
         {!isSystemMessage && <p className="text-sm font-bold">{sender}</p>}
         <p className="">{message}</p>
         {!isSystemMessage && (
-          <small className="self-end text-gray-300 text-xs">
-            {new Date().toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </small>
+          <small className="self-end text-gray-300 text-xs">{timeStamp}</small>
         )}
       </div>
     </div>
