@@ -64,6 +64,7 @@ function ChatMessage({
           onClick={(e) => {
             setAction("click");
             e.stopPropagation();
+            setIsDeleteClicked(!isDeleteClicked);
           }}
           className="absolute top-0 w-[100%] h-[100%] bg-[rgba(0,0,0,.3)] z-40"
         >
