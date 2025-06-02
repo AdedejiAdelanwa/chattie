@@ -64,6 +64,25 @@ function ChatApp() {
     socket.emit("message", data);
   };
 
+  const handleDeleteMessage = (index: number, sender: string) => {
+    setMessages((prev) =>
+      prev.map((msg, i) =>
+        i === index ? { ...msg, message: "message deleted" } : msg
+      )
+    );
+    if (sender === username) {
+      socket.emit("message", {
+        room,
+        message: "message deleted",
+        sender: username,
+        timeStamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      });
+    }
+  };
+
   useEffect(() => {
     socket.on("typing", (message) => {
       setTyping(message);
@@ -199,14 +218,16 @@ function ChatApp() {
             {messages.map((message, i) => (
               <ChatMessage
                 key={i}
+                index={i}
+                username={username}
                 message={message.message}
                 sender={message.sender}
                 timeStamp={message?.timeStamp}
                 isOwnMessage={message.sender === username}
+                handleDeleteMessage={handleDeleteMessage}
               />
             ))}
             {typing && <p className="text-[10px] text-gray-900">{typing}</p>}
-            {/* check the bottom of the div is at the top or not at the bottom */}
             {showScrollButton && (
               <button
                 type="button"
