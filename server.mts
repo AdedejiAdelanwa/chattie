@@ -26,8 +26,16 @@ app.prepare().then(() => {
       socket.to(room).emit("userStoppedTyping");
     });
 
-    socket.on("message", ({ room, message, sender, timeStamp }) => {
-      socket.to(room).emit("message", { sender, message, timeStamp });
+    socket.on("message", ({ room, message, sender, timeStamp, messageId }) => {
+      socket
+        .to(room)
+        .emit("message", { sender, message, timeStamp, messageId });
+    });
+
+    socket.on("deleteMessage", ({ room, messageId }) => {
+      //io.to(room).emit("tester", "hi");
+      io.to(room).emit("deletedMessage", { messageId, room });
+      console.log("tester", room, messageId);
     });
 
     socket.on("leaveRoom", ({ room, username }) => {
