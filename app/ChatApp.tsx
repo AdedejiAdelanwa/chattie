@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ChatForm from "./components/ChatForm";
 import ChatMessage from "./components/ChatMessage";
 import { socket } from "./lib/socketClient";
@@ -9,7 +9,7 @@ function ChatApp() {
   const [joined, setJoined] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
   const [messages, setMessages] = useState<
-    { sender: string; message: string; timeStamp?: string }[]
+    { sender: string; message: string; timeStamp?: string; messageId: string }[]
   >([]);
   const [typing, setTyping] = useState<string>("");
   const contentRef = useRef<HTMLDivElement>(null);
@@ -41,10 +41,14 @@ function ChatApp() {
     }, 6000);
   };
   const handleSendMessage = (message: string) => {
+    const messageId = Math.floor(
+      1000000000 + Math.random() * 9000000000
+    ).toString();
     const data = {
       room,
       message,
       sender: username,
+      messageId,
       timeStamp: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -53,33 +57,22 @@ function ChatApp() {
     setMessages((prev) => [
       ...prev,
       {
-        sender: username,
-        message,
-        timeStamp: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
+        ...data,
       },
     ]);
     socket.emit("message", data);
   };
 
-  const handleDeleteMessage = (index: number, sender: string) => {
+  const handleDeleteForMe = (index: string) => {
     setMessages((prev) =>
-      prev.map((msg, i) =>
-        i === index ? { ...msg, message: "message deleted" } : msg
+      prev.map((msg) =>
+        msg.messageId === index ? { ...msg, message: "message deleted" } : msg
       )
     );
+  };
+  const handleDeleteForAll = (sender: string, messageId: string) => {
     if (sender === username) {
-      socket.emit("message", {
-        room,
-        message: "message deleted",
-        sender: username,
-        timeStamp: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      });
+      socket.emit("deleteMessage", { room, messageId });
     }
   };
 
@@ -97,19 +90,75 @@ function ChatApp() {
   }, [setTyping]);
   useEffect(() => {
     socket.on("joinRoom", (message) => {
-      setMessages((prev) => [...prev, { sender: "system", message }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "system",
+          message,
+          messageId: Math.floor(
+            1000000000 + Math.random() * 9000000000
+          ).toString(),
+          timeStamp: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        },
+      ]);
     });
     socket.on("message", (data) => {
       setMessages((prev) => [...prev, data]);
     });
     socket.on("leaveRoom", (message) => {
-      setMessages((prev) => [...prev, { sender: "system", message }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "system",
+          message,
+          messageId: Math.floor(
+            1000000000 + Math.random() * 9000000000
+          ).toString(),
+          timeStamp: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        },
+      ]);
     });
+
     return () => {
       socket.off("joinRoom");
       socket.off("message");
     };
   }, []);
+  useEffect(() => {
+    const handleDeletedMessage = (data: {
+      messageId: string;
+      room: string;
+    }) => {
+      console.log(data);
+      console.log(`delete: ${data.messageId} in ${data.room}`);
+      setMessages((prev) =>
+        prev.map((msg) =>
+          data.messageId === msg.messageId
+            ? { ...msg, message: "message deleted" }
+            : msg
+        )
+      );
+    };
+    // socket.on("deletedMessage", () => {
+    //   console.log(`room is: ${room}`);
+    // });
+    socket.on("deletedMessage", (data) => {
+      handleDeletedMessage(data);
+    });
+    // socket.on("tester", () => {
+    //   console.log("tester in the client");
+    // });
+    return () => {
+      socket.off("deletedMessage");
+      //socket.off("tester");
+    };
+  }, [setMessages]);
 
   useEffect(() => {
     const container = contentRef.current;
@@ -171,7 +220,7 @@ function ChatApp() {
       });
     }
   };
-
+  console.log(messages);
   return (
     <div className="flex mt-24 justify-center w-full">
       {!joined ? (
@@ -215,16 +264,18 @@ function ChatApp() {
             ref={contentRef}
             className="relative h-[500px] overflow-y-auto border bg-gray-200 border-gray-300 rounded p-4"
           >
-            {messages.map((message, i) => (
+            {messages.map((message) => (
               <ChatMessage
-                key={i}
-                index={i}
+                key={message.messageId}
+                index={message.messageId}
                 username={username}
                 message={message.message}
+                messageId={message.messageId}
                 sender={message.sender}
                 timeStamp={message?.timeStamp}
                 isOwnMessage={message.sender === username}
-                handleDeleteMessage={handleDeleteMessage}
+                handleDeleteForMe={handleDeleteForMe}
+                handleDeleteForAll={handleDeleteForAll}
               />
             ))}
             {typing && <p className="text-[10px] text-gray-900">{typing}</p>}

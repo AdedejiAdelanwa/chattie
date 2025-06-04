@@ -4,11 +4,13 @@ import useLongPress from "../hooks/use-long-press";
 interface ChatMessageProps {
   message: string;
   sender: string;
+  messageId: string;
   username: string;
-  index: number;
+  index: string;
   timeStamp?: string;
   isOwnMessage: boolean;
-  handleDeleteMessage?: (index: number, sender: string) => void;
+  handleDeleteForMe?: (index: string) => void;
+  handleDeleteForAll?: (sender: string, messageId: string) => void;
   //   isSystemMessage: boolean;
 }
 
@@ -16,10 +18,12 @@ function ChatMessage({
   sender,
   username,
   message,
+  messageId,
   index,
   isOwnMessage,
   timeStamp,
-  handleDeleteMessage,
+  handleDeleteForMe,
+  handleDeleteForAll,
 }: ChatMessageProps) {
   const isSystemMessage = sender === "system";
   const { action, setAction, handlers } = useLongPress();
@@ -74,44 +78,43 @@ function ChatMessage({
             }}
             className="absolute w-[120px] top-[10%] right-[5%]  max-h-[300px] scroll-auto p-2 bg-red-200 text-black rounded-sm z-50"
           >
-            <div
-              onClick={() => {
-                setIsDeleteClicked(!isDeleteClicked);
-              }}
-              className="relative bg-[inherit] w-full cursor-pointer text-[inherit] px-2 py-1 rounded mb-2 hover:bg-white hover:text-red-500  transition-colors duration-200"
-              title="Delete message"
-              aria-label="Delete message"
-            >
-              Delete
-              {isDeleteClicked && (
-                <div className="absolute flex flex-col px-2 py-1 left-[-130%] bg-red-400 text-white rounded">
-                  <button
-                    className="cursor-pointer px-1 border-b-[0.3px] transition-colors duration-200 hover:bg-white hover:text-red-500 "
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteMessage && handleDeleteMessage(index, sender);
-                      console.log("...for me");
-                    }}
-                  >
-                    Delete for me
-                  </button>
-                  {sender === username && (
+            {sender === username && (
+              <div
+                onClick={() => {
+                  setIsDeleteClicked(() => !isDeleteClicked);
+                }}
+                className="relative bg-[inherit] w-full cursor-pointer text-[inherit] px-2 py-1 rounded mb-2 hover:bg-white hover:text-red-500  transition-colors duration-200"
+                title="Delete message"
+                aria-label="Delete message"
+              >
+                Delete
+                {isDeleteClicked && (
+                  <div className="absolute flex flex-col px-2 py-1 left-[-130%] bg-red-400 text-white rounded">
                     <button
-                      className="cursor-pointer disabled:cursor-not-allowed transition-colors duration-200"
+                      className="cursor-pointer px-1 border-b-[0.3px] transition-colors duration-200 hover:bg-white hover:text-red-500 "
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDeleteMessage &&
-                          handleDeleteMessage(index, sender);
-                        console.log("...for everybody");
+                        handleDeleteForMe && handleDeleteForMe(index);
+                        console.log("...for me");
                       }}
-                      disabled
+                    >
+                      Delete for me
+                    </button>
+
+                    <button
+                      className="cursor-pointer px-1 border-b-[0.3px] transition-colors duration-200 hover:bg-white hover:text-red-500 "
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteForAll &&
+                          handleDeleteForAll(sender, messageId);
+                      }}
                     >
                       Delete for all
                     </button>
-                  )}
-                </div>
-              )}
-            </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <p>Pin</p>
             <p>Copy & paste</p>
