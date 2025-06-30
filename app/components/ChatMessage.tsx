@@ -50,15 +50,24 @@ function ChatMessage({
         }`}
       >
         {!isSystemMessage && <p className="text-sm font-bold">{sender}</p>}
-        <p
-          className={`${
-            message === "message deleted"
-              ? "italic font-light text-gray-300"
-              : ""
-          } `}
-        >
-          {message}
-        </p>
+        {message.startsWith("data:image/") ? (
+          <img
+            src={message}
+            alt="chat image"
+            style={{ borderRadius: "8px", maxWidth: "200px" }}
+          />
+        ) : (
+          <p
+            className={`${
+              message === "message deleted"
+                ? "italic font-light text-gray-300"
+                : ""
+            } `}
+          >
+            {message}
+          </p>
+        )}
+
         {!isSystemMessage && (
           <small className="self-end text-gray-300 text-xs">{timeStamp}</small>
         )}
