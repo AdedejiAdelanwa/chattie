@@ -9,8 +9,28 @@ interface ChartFormProps {
 function ChatForm({ onSendMessage, onTyping }: ChartFormProps) {
   const [message, setMessage] = React.useState<string>("");
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+    fileInputRef.current?.click();
+  };
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
+  };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        // Here you can handle the base64 string, e.g., send it to the server
+        console.log("File uploaded:", base64String);
+        onSendMessage(base64String);
+        inputRef.current?.focus();
+      };
+      reader.readAsDataURL(file);
+    }
   };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,6 +42,28 @@ function ChatForm({ onSendMessage, onTyping }: ChartFormProps) {
   };
   return (
     <form className="flex justify-between gap-2 mt-4">
+      <input
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        ref={fileInputRef}
+        onChange={handleFileChange}
+      />
+      <button
+        type="submit"
+        className=" flex items-center justify-center w-[10%] bg-gray-200 text-white rounded  hover:bg-gray-100 cursor-pointer"
+        onClick={handleClick}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="24px"
+          viewBox="0 -960 960 960"
+          width="24px"
+          fill="#2b7fff"
+        >
+          <path d="M480-480ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h320v80H200v560h560v-320h80v320q0 33-23.5 56.5T760-120H200Zm40-160h480L570-480 450-320l-90-120-120 160Zm440-320v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Z" />
+        </svg>
+      </button>
       <textarea
         name="message"
         value={message}

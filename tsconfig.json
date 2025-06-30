@@ -27,7 +27,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "server.mts"
+    "server.mts",
+    "app/lib/encrypt.js"
   ],
   "exclude": ["node_modules"]
 }
